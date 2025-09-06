@@ -4,6 +4,7 @@
 import { ref } from 'vue';
 
 import { Button } from '@/components/ui/button';
+import { Loader2 } from "lucide-vue-next"
 import {
     Card,
     CardContent,
@@ -132,7 +133,13 @@ export const containerClass = "w-full h-screen flex items-center justify-center 
                         <Input id="birth-date" v-model="birth_date" type="date" required />
                     </div>
                     <!-- Bouton -->
-                    <Button type="submit" class="w-full"> Creer un compte </Button>
+                    <Button
+                    type="submit"
+                    class="w-full"
+                    :disabled="loading">
+                    <Loader2 v-if="loading" class="w-4 h-4 mr-2 animate-spin" />
+                    {{ loading ? "Chargement..." : "Créer un compte"}}
+                </Button>
                 </div>
                 
                 <div class="mt-4 text-center text-sm">

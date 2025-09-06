@@ -2,6 +2,7 @@
 import { ref } from 'vue';
 
 import { Button } from '@/components/ui/button';
+import { Loader2 } from "lucide-vue-next"
 import {
     Card,
     CardContent,
@@ -65,6 +66,7 @@ const handleLogin = async () => {
                     type="submit"
                     class="w-full"
                     :disabled="loading">
+                    <Loader2 v-if="loading" class="w-4 h-4 mr-2 animate-spin" />
                     {{ loading ? "connexion..." : "Se connecter"}}
                 </Button>
             </div>
