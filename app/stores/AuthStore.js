@@ -8,7 +8,7 @@ import { useMessage } from "#imports";
 export const useAuthStore = defineStore("auth", () => {
     const config = useRuntimeConfig();
     const router = useRouter();
-    const {successMessage, errorMessage} = useMessage();
+    const { successMessage, errorMessage } = useMessage();
     const access = useCookie("access", { default: () => null });
     const refresh = useCookie("refresh", { default: () => null });
     
@@ -43,7 +43,7 @@ export const useAuthStore = defineStore("auth", () => {
     const register = async (userData) => {
         try {
             loading.value = true;
-            console.log(userData)
+            
             const response = await $fetch(config.public.API_BASE_URL + "/auth/register/", {
                 method: "POST",
                 baseURL: config.public.API_BASE_URL,
@@ -68,8 +68,11 @@ export const useAuthStore = defineStore("auth", () => {
         access.value = null;
         refresh.value = null;
         user.value = null;
+        
+        successMessage("Déconnexion réussi");
+        router.replace("/login");
     };
-
+    
     const formatErrors = (error) => {
         if (error?.data) {
             const errors = error.data;

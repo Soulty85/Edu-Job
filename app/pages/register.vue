@@ -75,7 +75,7 @@ export const containerClass = "w-full h-screen flex items-center justify-center 
             </CardDescription>
         </CardHeader>
         
-        <form @submit.prevent="handleRegister" action="">
+        <form action="" @submit.prevent="handleRegister">
             <CardContent>
                 <div class="grid gap-4">
                     <!-- Nom et prénom -->

@@ -47,7 +47,7 @@ const handleLogin = async () => {
             </CardDescription>
         </CardHeader>
         
-        <form @submit.prevent="handleLogin" action="">
+        <form action="" @submit.prevent="handleLogin" >
         <CardContent>
             <div class="grid gap-4">
                 <div class="grid gap-2">
