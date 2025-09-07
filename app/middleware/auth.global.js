@@ -5,7 +5,7 @@ export default defineNuxtRouteMiddleware((to) => {
     const auth = useAuthStore();
     
     // Vérifie rôle admin
-    if (to.path.startsWith("/admin") && (auth.user?.role !== "admin" || !auth.isAuthenticated)) {
+    if (to.path.startsWith("/admin") && (!auth.isAuthenticated)) {
         return navigateTo("/unauthorized");
     }
 });
