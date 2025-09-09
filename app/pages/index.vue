@@ -16,12 +16,18 @@
                 </div>
             </div>
             
-            <div class=" mt-10 lg:mt-16 space-y-4">
+            <div v-if="!loading" class=" mt-10 lg:mt-16 space-y-4">
                 <JobCard
                 v-for="job in jobs"
                 :key="job.id"
                 :job="job"
                 />
+            </div>
+            <div v-if="loading" class=" mt-10 lg:mt-16 space-y-4">
+                <JobCardSkeleton />
+                <JobCardSkeleton />
+                <JobCardSkeleton />
+                <JobCardSkeleton />
             </div>
         </section>
     </main>
@@ -30,6 +36,7 @@
 <script setup>
 import { ref } from "vue"
 import JobCard from "~/components/base/JobCard.vue"
+import JobCardSkeleton from "~/components/base/skeleton/JobCardSkeleton.vue";
 
 useHead({
     title: 'Accueil - EduJob',
@@ -38,28 +45,24 @@ definePageMeta({
     layout: 'base'
 })
 
-const jobs = ref([
-    {
-        id: 1,
-        title: "Professeur de Management",
-        description: "Participez à la formation des étudiants en stratégie, organisation et leadership.",
-        department: "ESITEC",
-        level: "master 1"
-    },
-    {
-        id: 2,
-        title: "Enseignant en Comptabilité",
-        description: "Contribuez à l’enseignement de la comptabilité générale et analytique.",
-        department: "ESITEC",
-        level: "master 1"
-    },
-    {
-        id: 3,
-        title: "Professeur de Marketing",
-        description: "Encadrez les étudiants en communication, analyse de marché et gestion de marque.",
-        department: "ESITEC",
-        level: "master 1"
-    },
-])
+const config = useRuntimeConfig();
+const loading = ref(true)
+const jobs = ref([])
+const error = ref("")
+
+onMounted(async () => {
+    try {
+        const res = await $fetch('/positions/open_positions/', {
+            method: 'GET',
+            baseURL: config.public.API_BASE_URL,
+        })
+        jobs.value = res
+    } catch (err) {
+        console.error('Erreur API:', err)
+        error.value = 'Impossible de charger les jobs'
+    } finally {
+        loading.value = false
+    }
+})
 </script>
 
