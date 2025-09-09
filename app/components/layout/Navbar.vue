@@ -5,7 +5,7 @@
                 <span class="self-center text-4xl font-semibold whitespace-nowrap">EduJobs</span>
             </a>
             
-            <div v-if="!authStore.isAuthenticated" class="flex flex-row gap-4">
+            <div v-if="authStore.isAuthenticated" class="flex items-center gap-3">
                 <Button variant="outline" class="w-48 py-4">Se connecter</Button>
                 <Button variant="default" class="w-48 py-4">S'inscrire</Button>
             </div>
