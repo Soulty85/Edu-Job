@@ -24,7 +24,7 @@
         
         <div class="flex items-center text-sm text--500">
                 <UIcon name="i-heroicons-building-office-2-solid" class="w-4 h-4 mr-1" />
-                <span class="mr-4">{{ job.department }}</span>
+                <span class="mr-4">{{ job.department_name }}</span>
                 <UIcon name="i-heroicons-academic-cap-solid" class="w-4 h-4 mr-1" />
             <span>{{ job.level }}</span>
         </div>
