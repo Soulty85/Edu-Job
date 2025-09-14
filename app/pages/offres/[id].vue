@@ -1,29 +1,42 @@
 <template>
     <div class=" flex flex-col items-center justify-center py-10">
-        <div class="container max-w-4xl">
+        <div v-if="!loading" class="container max-w-4xl">
             <!-- HEADER -->
             <div class="shadow rounded-lg p-6">
                 <div class="flex justify-between items-start">
                     <div>
-                        <h1 class="text-3xl font-bold">{{ offer.title }}</h1>
+                        <h1 class="text-3xl font-bold mb-5">{{ job.title }}</h1>
+                        
+                        <h2 class="text-xl font-semibold">Matières concernées
+                            <spsan class=" ml-4 inline">
+                                <Badge
+                                    v-for="(s, i) in subjects"
+                                    :key="i"
+                                    variant="secondary"
+                                    class="capitalize"
+                                >
+                                    {{ s }}
+                                </Badge>
+                            </spsan>
+                        </h2>
                         
                         <p class="mt-2 text-sm">
                             Département :
-                            <span class="font-medium">{{ offer.department }}</span> •
+                            <span class="font-medium">{{ job.department_name }}</span> •
                             Niveau :
-                            <span class="font-medium">{{ offer.level }}</span>
+                            <span class="font-medium">{{ job.level }}</span>
                         </p>
                         
                         <p class="text-sm">
                             Type de contrat :
-                            <span class="capitalize font-medium">{{ offer.contract_type }}</span>
+                            <span class="capitalize font-medium">{{ job.contract_type }}</span>
                             • Volume horaire :
-                            <span class="font-medium">{{ offer.hourly_volume }}h / semaine</span>
+                            <span class="font-medium">{{ job.workload }}h / semaine</span>
                         </p>
                     </div>
                     
-                    <Badge :variant="statusVariant(offer.status)" class="capitalize">
-                        {{ offer.status }}
+                    <Badge :variant="statusVariant(job.status)" class="capitalize">
+                        {{ job.status }}
                     </Badge>
                 </div>
                 
@@ -39,7 +52,7 @@
             <section class="shadow outline rounded-lg p-8 mt-8">
                 <h2 class="text-xl font-semibold">Description du poste</h2>
                 <p class="mt-4 leading-relaxed">
-                {{ offer.description }}
+                {{ job.description }}
                 </p>
             </section>
             
@@ -50,35 +63,42 @@
                 <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
                     <div>
                         <p class="font-medium">Département</p>
-                        <p>{{ offer.department }}</p>
+                        <p>{{ job.department_name }}</p>
                     </div>
+                    
                     <div>
                         <p class="font-medium">Niveau d’enseignement</p>
-                        <p>{{ offer.level }}</p>
+                        <p>{{ job.level }}</p>
                     </div>
+                    
                     <div>
                         <p class="font-medium">Type de contrat</p>
-                        <p class="capitalize">{{ offer.contract_type }}</p>
+                        <p class="capitalize">{{ job.contract_type }}</p>
                     </div>
+                    
                     <div>
                         <p class="font-medium">Volume horaire</p>
-                        <p>{{ offer.hourly_volume }}h / semaine</p>
+                        <p>{{ job.workload }}h / semaine</p>
                     </div>
+                    
                     <div>
                         <p class="font-medium">Date de début</p>
-                        <p>{{ offer.start_date }}</p>
+                        <p>{{ job.start_date }}</p>
                     </div>
-                    <div v-if="offer.end_date">
+                    
+                    <div v-if="job.end_date">
                         <p class="font-medium">Date de fin</p>
-                        <p>{{ offer.end_date }}</p>
+                        <p>{{ job.end_date }}</p>
                     </div>
+                    
                     <div>
                         <p class="font-medium">Créée par</p>
-                        <p>{{ offer.created_by }}</p>
+                        <p>{{ job.created_by_name }}</p>
                     </div>
+                    
                     <div>
                         <p class="font-medium">Date de publication</p>
-                        <p>{{ offer.created_at }}</p>
+                        <p>{{ job.created_at }}</p>
                     </div>
                 </div>
             </section>
@@ -121,13 +141,18 @@
                     
                     <li>
                         Conditions adaptées : contrat
-                        <span class="capitalize">{{ offer.contract_type }}</span>,
+                        <span class="capitalize">{{ job.contract_type }}</span>,
                         flexibilité selon le calendrier universitaire.
                     </li>
                 </ul>
             </section>
+            
         </div>
+        <template v-if="loading">
+                <JobDetailSkeleton />
+            </template>
     </div>
+
 </template>
 
 <script setup>
@@ -135,26 +160,42 @@ import { ref } from "vue"
 import { useRoute } from "#app"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import JobDetailSkeleton from "~/components/base/skeleton/JobDetailSkeleton.vue"
 
-const route = useRoute()
-
-const offer = ref({
-    id: route.params.id,
-    title: "Professeur de Management",
-    description: "Nous recherchons un(e) professeur passionné(e) de management pour accompagner nos étudiants dans leur parcours académique et professionnel. Vous serez en charge d’enseigner des modules liés à la stratégie, au leadership et à l’organisation des entreprises. Votre rôle inclura également l’encadrement de travaux pratiques et la participation à des projets de recherche.",
-    department: "Département 1",
-    subjects: "Management, Leadership, Stratégie",
-    level: "Master",
-    hourly_volume: 12,
-    contract_type: "vacataire",
-    start_date: "2025-10-01",
-    end_date: "2026-06-30",
-    status: "ouverte",
-    created_by: "Jane Doe",
-    created_at: "2025-09-08",
+useHead({
+    title: 'Accueil - EduJob',
+});
+definePageMeta({
+    layout: 'base'
 })
 
-const subjects = offer.value.subjects.split(",")
+const route = useRoute();
+const config = useRuntimeConfig();
+const loading = ref(true);
+const job_id = route.params.id;
+const job = ref([]);
+const subjects = ref([]);
+const error = ref("");
+
+
+onMounted(async () => {
+    try {
+        const res = await $fetch(`/positions/${job_id}/`, {
+            method: 'GET',
+            baseURL: config.public.API_BASE_URL,
+        })
+        
+        job.value = res
+        subjects.value = job.value.subjects.split(",")
+        
+    } catch (err) {
+        console.error('Erreur API:', err)
+        error.value = 'Impossible de charger les jobs'
+    } finally {
+        loading.value = false
+    }
+})
+
 
 function statusVariant(status) {
     switch (status) {
@@ -169,5 +210,5 @@ function statusVariant(status) {
         default:
             return "outline"
     }
-    }
+}
 </script>
