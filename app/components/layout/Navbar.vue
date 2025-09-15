@@ -10,7 +10,7 @@
                 <Button variant="default" class="w-48 py-4">S'inscrire</Button>
             </div>
             
-            <div v-if="authStore.isAuthenticated" class="flex items-center gap-3">
+            <div v-if="authStore.isAuthenticated" class="flex flex-row-reverse items-center gap-7">
                 <div class="flex items-center gap-2">
                     <img
                     src="https://i.pravatar.cc/40"
@@ -19,8 +19,10 @@
                     >
                     <span class="text-sm">Jane Doe</span>
                 </div>
-                <Button variant="ghost" size="icon">
-                    <Icon name="lucide:settings" class="w-5 h-5" />
+                
+                <Button @click="authStore.logout()">
+                    <Icon name="lucide:log-out" class="w-5 h-5" />
+                    Logout
                 </Button>
             </div>
         </div>
@@ -33,5 +35,6 @@ import { useAuthStore } from "#imports";
 
 
 const authStore = useAuthStore()
+
 </script>
 

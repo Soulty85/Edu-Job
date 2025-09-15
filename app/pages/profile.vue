@@ -21,8 +21,8 @@
                 
                 <!-- Infos principales -->
                 <div class="flex-1 text-center md:text-left">
-                    <h1 class="text-3xl font-bold">{{ user.full_name }}</h1>
-                    <p class="text-gray-500">{{ user.email }}</p>
+                    <h1 class="text-3xl font-bold">{{ candidate.full_name }}</h1>
+                    <p class="text-gray-500">{{ candidate.email }}</p>
                     
                     <!-- Bouton modifier -->
                     <div class="mt-4">
@@ -41,12 +41,12 @@
                 
                 <CardContent>
                     <div v-if="!editing" class="space-y-3 ">
-                        <p><span class="font-medium">Nom :</span> {{ user.full_name }}</p>
-                        <p><span class="font-medium">Email :</span> {{ user.email }}</p>
-                        <p><span class="font-medium">Téléphone :</span> {{ user.phone }}</p>
-                        <p><span class="font-medium">Adresse :</span> {{ user.address }}</p>
-                        <p><span class="font-medium">Date de naissance :</span> {{ user.birth_date }}</p>
-                        <p><span class="font-medium">Nationalité :</span> {{ user.nationality }}</p>
+                        <p><span class="font-medium">Nom :</span> {{ candidate.full_name }}</p>
+                        <p><span class="font-medium">Email :</span> {{ candidate.email }}</p>
+                        <p><span class="font-medium">Téléphone :</span> {{ candidate.phone }}</p>
+                        <p><span class="font-medium">Adresse :</span> {{ candidate.address }}</p>
+                        <p><span class="font-medium">Date de naissance :</span> {{ candidate.birthzzdate }}</p>
+                        <p><span class="font-medium">Nationalité :</span> {{ candidate.nationality }}</p>
                     </div>
                     
                     <!-- Formulaire édition -->
@@ -226,8 +226,14 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Icon } from "#components"
+import { useAuthStore } from "#imports"
 
-const loading = ref(false);
+
+const config = useRuntimeConfig();
+const access = useAuthStore().access
+const loading = ref(true);
+const candidate = reactive({});
+const error = ref("");
 const user = reactive({
     full_name: "Jean Dupont",
     email: "jean.dupont@example.com",
@@ -273,4 +279,24 @@ function saveProfile() {
     Object.assign(user, form)
     editing.value = false
 }
+
+onMounted(async ()=> {
+    try {
+        const res = await $fetch('/candidates/me/', {
+            method: 'GET',
+            baseURL: config.public.API_BASE_URL,
+            headers: {
+                Authorization: `Bearer ${access}`
+            }
+        })
+        
+        Object.assign(candidate, res)
+        console.log(candidate)
+    } catch (err) {
+        console.error('Erreur API:', err)
+        error.value = 'Impossible de charger les jobs'
+    } finally {
+        loading.value = false
+    }
+})
 </script>
