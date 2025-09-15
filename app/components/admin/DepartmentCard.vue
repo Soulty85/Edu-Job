@@ -14,8 +14,10 @@
         </CardContent>
         
         <CardFooter>
-            <Button class="w-full hover:bg-gray-800">
-                Voir les offres
+            <Button as-child class="w-full hover:bg-gray-800">
+                <NuxtLink :to="`/admin/departement/${id}/offers`">
+                    Voir l’offre
+                </NuxtLink>
             </Button>
         </CardFooter>
     </Card>
@@ -27,6 +29,7 @@ import { Button } from "@/components/ui/button"
 
 
 defineProps({
+    id: { type: Number, required: true },
     name: { type: String, required: true },
     offers: { type: Number, required: true },
     candidates: { type: Number, required: true },

@@ -36,10 +36,11 @@
                     <DepartmentCard
                         
                         v-for="dept in departments"
+                        :id="dept.id"
                         :key="dept.id"
                         :name="dept.name"
-                        :offers="dept.offers"
-                        :candidates="dept.candidates"
+                        :offers="dept.open_positions_count"
+                        :candidates="dept.ongoing_applications_count"
                     />
                 </div>
                 
@@ -62,13 +63,24 @@ import DepartmentCard from "~/components/admin/DepartmentCard.vue"
 import DepartmentCardSkeleton from "~/components/admin/skeleton/DepartmentCardSkeleton.vue"
 import KpiSkeleton from "~/components/admin/skeleton/KpiSkeleton.vue";
 
-const loading = ref(false);
-const departments = [
-    { id: 1, name: "Département 1", offers: 12, candidates: 128 },
-    { id: 2, name: "Département 2", offers: 12, candidates: 128 },
-    { id: 3, name: "Département 3", offers: 12, candidates: 128 },
-    { id: 4, name: "Département 4", offers: 12, candidates: 128 },
-    { id: 5, name: "Département 5", offers: 12, candidates: 128 },
-    { id: 6, name: "Département 6", offers: 12, candidates: 128 },
-]
+
+const config = useRuntimeConfig();
+const loading = ref(true);
+const departments = ref([]);
+
+onMounted(async () => {
+    try {
+        const res = await $fetch('/departments/', {
+            method: 'GET',
+            baseURL: config.public.API_BASE_URL
+        })
+        departments.value = res.results;
+        console.log(res)
+
+    } catch(err) {
+        console.log(err);
+    } finally {
+        loading.value = false;
+    }
+})
 </script>
