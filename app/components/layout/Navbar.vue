@@ -6,8 +6,13 @@
             </a>
             
             <div v-if="!authStore.isAuthenticated" class="flex flex-row gap-4">
-                <Button variant="outline" class="w-48 py-4">Se connecter</Button>
-                <Button variant="default" class="w-48 py-4">S'inscrire</Button>
+                <NuxtLink to="/login" >
+                    <Button variant="outline" class="w-48 py-4">Se connecter</Button>
+                </NuxtLink>
+                
+                <NuxtLink to ="/register">
+                    <Button variant="default" class="w-48 py-4">S'inscrire</Button>
+                </NuxtLink>
             </div>
             
             <div v-if="authStore.isAuthenticated" class="flex flex-row-reverse items-center gap-7">
