@@ -1,5 +1,7 @@
 <template>
     <div class="">
+                    <h1 class="text-3xl font-bold text-center">Admin Dashboard</h1>
+
         <!-- KPIs -->
         <section class="mt-8">
             <h2 class="text-3xl font-bold mb-8">KPIs</h2>

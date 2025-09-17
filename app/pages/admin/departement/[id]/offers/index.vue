@@ -1,6 +1,6 @@
 <template>
     <div class="">
-        <h1 class="text-3xl font-bold my-10">Departement {{ department_details.name }}</h1>
+        <h1 class="text-3xl font-bold text-center">Departement {{ department_details.name }}</h1>
         
         <!-- KPIs -->
         <section class="mt-8">
