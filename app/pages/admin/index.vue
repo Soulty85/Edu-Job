@@ -62,7 +62,8 @@ import KpiSkeleton from "~/components/admin/skeleton/KpiSkeleton.vue";
 
 
 definePageMeta({
-    layout: "admin"
+    layout: "admin",
+    middleware: ["auth"]
 })
 const config = useRuntimeConfig();
 const loading = ref(true);

@@ -52,7 +52,8 @@ import JobCard from "~/components/base/JobCard.vue"
 import JobCardSkeleton from "~/components/base/skeleton/JobCardSkeleton.vue";
 
 definePageMeta({
-    layout: "admin"
+    layout: "admin",
+    middleware: ["auth"]
 })
 
 const config = useRuntimeConfig();
