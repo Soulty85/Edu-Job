@@ -1,6 +1,7 @@
 // stores/auth.js
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
+import { jwtDecode } from "jwt-decode";
 
 import { useMessage } from "#imports";
 
@@ -16,6 +17,22 @@ export const useAuthStore = defineStore("auth", () => {
     const loading = ref(false);
     const isAuthenticated = computed(() => !!access.value);
     
+    const loadUserByToken = () => {
+        if (access.value) {
+            try {
+                const decoded = jwtDecode(access.value);
+                user.value = {
+                    full_name: decoded.full_name,
+                    email: decoded.email,
+                    role: decoded.group,
+                };
+            } catch (err) {
+                console.error("Token invalide ou expiré", err);
+                logout(); 
+            }
+        }
+    };
+
     const login = async (email, password) => {
         try {
             loading.value = true;
@@ -28,7 +45,8 @@ export const useAuthStore = defineStore("auth", () => {
             
             access.value = response.access;
             refresh.value = response.refresh;
-            user.value = response.user;
+            
+            loadUserByToken();
             
             successMessage("Login réussi");
             router.replace("/");
@@ -44,15 +62,11 @@ export const useAuthStore = defineStore("auth", () => {
         try {
             loading.value = true;
             
-            const response = await $fetch(config.public.API_BASE_URL + "/auth/register/", {
+            await $fetch(config.public.API_BASE_URL + "/auth/register/", {
                 method: "POST",
                 baseURL: config.public.API_BASE_URL,
                 body: userData,
             });
-            
-            access.value = response.access;
-            refresh.value = response.refresh;
-            user.value = response.user;
             
             successMessage("Inscription réussi, bienvenue sur EduJob");
             router.replace("/login");
@@ -93,6 +107,8 @@ export const useAuthStore = defineStore("auth", () => {
         }
     }
     
+    loadUserByToken();
+
     return {
         access,
         refresh,

@@ -16,13 +16,12 @@ export default defineNuxtRouteMiddleware((to) => {
     
     try {
         const decoded = jwtDecode(access);
-        const role = decoded.group; // ou decoded.role selon comment tu l’as mis côté backend
+        const role = decoded.group; 
         
         if (to.path.startsWith("/admin") && !allowedRoles.includes(role)) {
             return navigateTo("/unauthorized");
         }
     } catch (err) {
-        // Si problème de décodage du token → bloqué
         return navigateTo("/login");
     }
 });

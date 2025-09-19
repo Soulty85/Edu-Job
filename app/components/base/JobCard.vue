@@ -8,20 +8,21 @@
                 <h3 class="text-xl font-semibold text--800">{{ job.title }}</h3>
                 
                 <UButton
-                    v-if="showApplyButton"
-                    color="primary"
-                    @click="$emit('apply')"
-                >
+                        v-if="!['RH', 'Direction', 'ChefDeDepartement'].includes(userRole)"
+                        color="primary"
+                        @click="$emit('apply')"
+                    >
                     Postuler
                 </UButton>
                 
-                <UButton
-                    v-else
-                    variant="outline"
-                    @click="$emit('view-applications')"
-                >
-                    Voir les candidatures
-                </UButton>
+                <div v-else class="flex gap-2">
+                    <NuxtLink to="/login">
+                        <UButton color="warning" @click="$emit('edit')">Modifier</UButton>
+                    </NuxtLink>
+                    <NuxtLink :to="route.path + `/${job.id}/candidates`">
+                        <UButton variant="outline" @click="$emit('view-applications')">Voir les candidatures</UButton>
+                    </NuxtLink>
+                </div>
             </div>
             
             <p class="text-\\-600 mb-4">{{ job.description }}</p>
@@ -37,6 +38,9 @@
 </template>
 
 <script setup>
+import { useAuthStore } from '#imports';
+
+
 defineProps({
     job: {
         type: Object,
@@ -48,5 +52,9 @@ defineProps({
     }
 })
 
-defineEmits(['apply', 'view-applications'])
+const route = useRoute();
+const authStore = useAuthStore();
+const userRole = computed(() => authStore.user.role);
+console.log(userRole.value)
+defineEmits(['apply', 'view-applications', 'edit'])
 </script>
