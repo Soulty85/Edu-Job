@@ -28,7 +28,7 @@
         <section class="mt-12">
             <h2 class="text-3xl font-bold mb-10">Offres</h2>
             
-            <div v-if="!loading_positions" class="grid md:grid-cols-3 gap-4">
+            <div v-if="!loading_positions" class="">
                 <JobCard
                 v-for="position in positions"
                 :key="position.id"
