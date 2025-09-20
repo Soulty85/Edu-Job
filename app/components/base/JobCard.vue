@@ -16,7 +16,7 @@
                 </UButton>
                 
                 <div v-else class="flex gap-2">
-                    <NuxtLink to="/login">
+                    <NuxtLink :to="`offers/${job.id}/edit`">
                         <UButton color="warning" @click="$emit('edit')">Modifier</UButton>
                     </NuxtLink>
                     <NuxtLink :to="route.path + `/${job.id}/candidates`">

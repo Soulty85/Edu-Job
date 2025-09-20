@@ -3,13 +3,13 @@ import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 import { jwtDecode } from "jwt-decode";
 
-import { useMessage } from "#imports";
+import { useMessage, formatErrors } from "#imports";
 
 
 export const useAuthStore = defineStore("auth", () => {
     const config = useRuntimeConfig();
     const router = useRouter();
-    const { successMessage, errorMessage } = useMessage();
+    const { successMessage } = useMessage();
     const access = useCookie("access", { default: () => null });
     const refresh = useCookie("refresh", { default: () => null });
     
@@ -32,7 +32,7 @@ export const useAuthStore = defineStore("auth", () => {
             }
         }
     };
-
+    
     const login = async (email, password) => {
         try {
             loading.value = true;
@@ -87,28 +87,8 @@ export const useAuthStore = defineStore("auth", () => {
         router.replace("/login");
     };
     
-    const formatErrors = (error) => {
-        if (error?.data) {
-            const errors = error.data;
-            
-            for (const field in errors) {
-                if (Array.isArray(errors[field])) {
-                    errors[field].forEach((msg) => errorMessage(`${field}: ${msg}`));
-                } else if (typeof errors[field] === "object") {
-                    for (const subField in errors[field]) {
-                        errors[field][subField].forEach((msg) =>
-                            errorMessage(`${subField}: ${msg}`)
-                        );
-                    }
-                }
-            }
-        } else {
-            errorMessage("Une erreur est survenue.");
-        }
-    }
-    
     loadUserByToken();
-
+    
     return {
         access,
         refresh,
