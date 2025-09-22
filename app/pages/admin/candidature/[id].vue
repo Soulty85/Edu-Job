@@ -19,6 +19,16 @@
                     <p class="mt-2 text-sm">Postulé pour : <b>{{ application.position_title }}</b></p>
                     <p class="text-sm">Date : {{ application.applied_date }}</p>
                 </div>
+                
+                <!-- Actions -->
+                <div v-if="application.status != 'approved' & application.status != 'rejected'" class="flex gap-4 mt-6">
+                    <Button class="bg-green-600 hover:bg-green-700 text-white" @click="approveApplication">
+                        Approuver
+                    </Button>
+                    <Button class="bg-red-600 hover:bg-red-700 text-white" @click="toggleReject">
+                        Rejeter
+                    </Button>
+                </div>
             </div>
             
             <!-- INFOS PERSONNELLES -->
@@ -33,8 +43,22 @@
                         <p><span class="font-medium">Email :</span> {{ application.candidate_info.email }}</p>
                         <p><span class="font-medium">Téléphone :</span> {{ application.candidate_info.phone }}</p>
                         <p><span class="font-medium">Nationalité :</span> {{ application.candidate_info.nationality }}</p>
+                        <p><span class="font-medium">Date de naissance :</span> {{ application.candidate_info.birthdate }}</p>
+                        <p><span class="font-medium">Domaines d'activité :</span> {{ application.candidate_info.specialties }}</p>
                         <p><span class="font-medium">Statut :</span> {{ application.status }}</p>
                         <p><span class="font-medium">Étape actuelle :</span> {{ application.current_stage_name }}</p>
+                    </div>
+                    
+                    <!-- Champ de rejet -->
+                    <div v-if="showReject" class="mt-4 space-y-2">
+                        <Textarea
+                            v-model="rejectionReason"
+                            placeholder="Indiquez la raison du rejet..."
+                            rows="3"
+                        />
+                        <div class="flex justify-end">
+                            <Button variant="destructive" @click="rejectApplication">Confirmer le rejet</Button>
+                        </div>
                     </div>
                 </CardContent>
             </Card>
@@ -49,22 +73,27 @@
                     <!-- Liste des commentaires -->
                     <div v-if="application.comments.length" class="space-y-4 mb-6">
                         <div
-                        v-for="comment in application.comments"
-                        :key="comment.id"
-                        class="border rounded p-3"
+                            v-for="comment in application.comments"
+                            :key="comment.id"
+                            class="border rounded p-3"
                         >
-                        <p class="text-sm font-medium">{{ comment.author_name }} <span class="text-gray-500">({{ comment.author }})</span></p>
-                        <p class="text-sm mt-1">{{ comment.content }}</p>
-                        <p class="text-xs text-gray-400 mt-1">{{ new Date(comment.created_at).toLocaleString() }}</p>
+                            <p class="text-sm font-medium">
+                                {{ comment.author_name }}
+                                <span class="text-gray-500">({{ comment.author }})</span>
+                            </p>
+                            <p class="text-sm mt-1">{{ comment.content }}</p>
+                            <p class="text-xs text-gray-400 mt-1">
+                                {{ new Date(comment.created_at).toLocaleString() }}
+                            </p>
                         </div>
                     </div>
                     
                     <!-- Formulaire ajout commentaire -->
                     <div class="space-y-3">
                         <Textarea
-                        v-model="newComment"
-                        placeholder="Ajouter un commentaire..."
-                        rows="3"
+                            v-model="newComment"
+                            placeholder="Ajouter un commentaire..."
+                            rows="3"
                         />
                         
                         <div class="flex justify-end">
@@ -91,7 +120,6 @@
             <CardHeader>
                 <h2 class="text-xl font-semibold">Informations personnelles</h2>
             </CardHeader>
-            
             <CardContent class="space-y-3">
                 <Skeleton class="h-4 w-64" />
                 <Skeleton class="h-4 w-52" />
@@ -103,7 +131,6 @@
             <CardHeader>
                 <h2 class="text-xl font-semibold">Commentaires</h2>
             </CardHeader>
-            
             <CardContent>
                 <Skeleton class="h-20 w-full" />
             </CardContent>
@@ -112,42 +139,51 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from "vue"
-import { Button } from "@/components/ui/button"
-import { Card, CardHeader, CardContent } from "@/components/ui/card"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Textarea } from "@/components/ui/textarea"
-import { useAuthStore } from "#imports"
+import { ref, reactive, onMounted } from "vue";
+import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Textarea } from "@/components/ui/textarea";
+import { useAuthStore, useMessage, formatErrors } from "#imports";
 
-const config = useRuntimeConfig()
-const access = useAuthStore().access
 
-const loading = ref(true)
+const config = useRuntimeConfig();
+const route = useRoute();
+const access = useAuthStore().access;
+
+const { successMessage } = useMessage(); 
+
+const loading = ref(true);
+const appclication_id = route.params.id
 const application = reactive({
     candidate_info: {},
     comments: []
-})
-const newComment = ref("")
+});
+const newComment = ref("");
+const showReject = ref(false);
+const rejectionReason = ref("");
 
-async function fetchApplication() {
+async function fetchApplication(id) {
     try {
-        const res = await $fetch(`/applications/1/`, {
-        method: "GET",
-        baseURL: config.public.API_BASE_URL,
-        headers: {
-            Authorization: `Bearer ${access}`,
-        },
-        })
-        Object.assign(application, res)
+        const res = await $fetch(`/applications/${id}/`, {
+            method: "GET",
+            baseURL: config.public.API_BASE_URL,
+            headers: {
+                Authorization: `Bearer ${access}`,
+            },
+        });
+        
+        Object.assign(application, res);
     } catch (err) {
-        console.error("Erreur API:", err)
+        console.error("Erreur API:", err);
     } finally {
-        loading.value = false
+        loading.value = false;
     }
 }
 
 async function addComment() {
-    if (!newComment.value.trim()) return
+    if (!newComment.value.trim()) return;
+    
     const comment = {
         id: Date.now(),
         author_name: "Admin",
@@ -155,23 +191,67 @@ async function addComment() {
         content: newComment.value,
         created_at: new Date().toISOString(),
     }
-    application.comments.unshift(comment)
-    newComment.value = ""
-
-// Appel API (mocké ici)
+    application.comments.unshift(comment);
+    newComment.value = "";
+    
     try {
         await $fetch(`/applications/${application.id}/comments/`, {
-        method: "POST",
-        baseURL: config.public.API_BASE_URL,
-        headers: {
-            Authorization: `Bearer ${access}`,
-        },
-        body: { content: comment.content },
+            method: "POST",
+            baseURL: config.public.API_BASE_URL,
+            headers: {
+                Authorization: `Bearer ${access}`,
+            },
+            body: { content: comment.content },
         })
     } catch (err) {
-        console.error("Erreur lors de l'ajout du commentaire:", err)
+        console.error("Erreur lors de l'ajout du commentaire:", err);
     }
 }
 
-onMounted(fetchApplication)
+function toggleReject() {
+    showReject.value = !showReject.value;
+}
+
+async function approveApplication() {
+    try {
+        await $fetch(`/applications/${application.id}/approve/`, {
+            method: "POST",
+            baseURL: config.public.API_BASE_URL,
+            headers: {
+                Authorization: `Bearer ${access}`,
+            },
+        })
+        application.status = "approved";
+        successMessage(res.message);
+    } catch (err) {
+        formatErrors(err);
+    }
+}
+
+async function rejectApplication() {
+    if (!rejectionReason.value.trim()) return;
+    
+    try {
+        await $fetch(`/applications/${application.id}/reject/`, {
+            method: "POST",
+            baseURL: config.public.API_BASE_URL,
+            headers: {
+                Authorization: `Bearer ${access}`,
+            },
+            body: { rejection_reason: rejectionReason.value },
+        });
+        application.status = "rejected";
+        application.rejection_reason = rejectionReason.value;
+        showReject.value = false;
+        rejectionReason.value = "";
+        
+        successMessage(res.message);
+    } catch (err) {
+        formatErrors(err);
+    }
+}
+
+onMounted( () => {
+    fetchApplication(appclication_id);
+})
 </script>
