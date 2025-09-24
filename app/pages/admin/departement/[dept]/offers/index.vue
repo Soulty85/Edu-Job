@@ -160,13 +160,24 @@ async function fetchDepartmentDetails(id) {
 
 async function fetchDepartmentPositions(id) {
     try {
-        const res = await $fetch(`/positions/?department=${id}`, {
+        loading_positions.value = true;
+        
+        const query = {
+            department: id,
+            status: filters.value.status || undefined,
+            contract_type: filters.value.contract_type || undefined,
+            level: filters.value.level || undefined,
+            subjects: filters.value.subjects || undefined,
+        };
+        
+        const res = await $fetch(`/positions/`, {
             method: 'GET',
-            baseURL: config.public.API_BASE_URL
-        })
+            baseURL: config.public.API_BASE_URL,
+            params: query
+        });
+        
         positions.value = res.results;
-        console.log(res)
-    
+        console.log(res);
     } catch(err) {
         console.log(err);
     } finally {
@@ -178,4 +189,8 @@ onMounted(async () => {
     fetchDepartmentDetails(department_id);
     fetchDepartmentPositions(department_id);
 })
+
+watch(filters, () => {
+    fetchDepartmentPositions(department_id);
+}, { deep: true })
 </script>
