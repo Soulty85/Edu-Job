@@ -13,7 +13,7 @@
                     icon="lucide:users"
                 />
                 <KpiCard
-                    title="Avancement du recrutement"
+                    title="Candidatures en cours"
                     :value="department_details.ongoing_applications_count"
                     icon="lucide:bar-chart-2"
                 />
@@ -107,7 +107,8 @@ definePageMeta({
 })
 
 const config = useRuntimeConfig();
-const department_id = 2;
+const route = useRoute();
+const department_id = route.params.dept;
 const loading_department = ref(true);
 const loading_positions = ref(true);
 const department_details = ref({});
