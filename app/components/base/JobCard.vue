@@ -54,7 +54,7 @@ defineProps({
 
 const route = useRoute();
 const authStore = useAuthStore();
-const userRole = computed(() => authStore.user.role);
+const userRole = computed(() => authStore.user?.role);
 console.log(userRole.value)
 defineEmits(['apply', 'view-applications', 'edit'])
 </script>
