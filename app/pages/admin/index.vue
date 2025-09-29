@@ -8,16 +8,14 @@
             
             <div v-if="!loading" class="grid md:grid-cols-2 gap-4">
                 <KpiCard
-                    title="Candidatures par poste"
-                    :value="18"
+                    title="Total d'offres"
+                    :value="3"
                     icon="lucide:users"
                 />
                 <KpiCard
-                    title="Avancement du recrutement"
-                    :value="72"
-                    unit="%"
+                    title="Total de candidatures"
+                    :value="5"
                     icon="lucide:bar-chart-2"
-                    :progress="72"
                 />
             </div>
             <div v-if="loading" class="grid md:grid-cols-2 gap-4">

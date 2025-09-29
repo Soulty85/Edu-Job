@@ -14,10 +14,10 @@
                 
                 <!-- Infos principales -->
                 <div class="flex-1 text-center md:text-left">
-                    <h1 class="text-3xl font-bold">{{ application.candidate_info.full_name }}</h1>
-                    <p class="text-gray-500">{{ application.candidate_info.email }}</p>
+                    <h1 class="text-3xl font-bold">{{ application.full_name }}</h1>
+                    <p class="text-gray-500">{{ application.email }}</p>
                     <p class="mt-2 text-sm">Postulé pour : <b>{{ application.position_title }}</b></p>
-                    <p class="text-sm">Date : {{ application.applied_date }}</p>
+                    <p class="text-sm">Date de candidature : {{ application.applied_at }}</p>
                 </div>
                 
                 <!-- Actions -->
@@ -39,12 +39,12 @@
                 
                 <CardContent>
                     <div class="space-y-3">
-                        <p><span class="font-medium">Nom :</span> {{ application.candidate_info.full_name }}</p>
-                        <p><span class="font-medium">Email :</span> {{ application.candidate_info.email }}</p>
-                        <p><span class="font-medium">Téléphone :</span> {{ application.candidate_info.phone }}</p>
-                        <p><span class="font-medium">Nationalité :</span> {{ application.candidate_info.nationality }}</p>
-                        <p><span class="font-medium">Date de naissance :</span> {{ application.candidate_info.birthdate }}</p>
-                        <p><span class="font-medium">Domaines d'activité :</span> {{ application.candidate_info.specialties }}</p>
+                        <p><span class="font-medium">Nom :</span> {{ application.full_name }}</p>
+                        <p><span class="font-medium">Email :</span> {{ application.email }}</p>
+                        <p><span class="font-medium">Téléphone :</span> {{ application.phone }}</p>
+                        <p><span class="font-medium">Nationalité :</span> {{ application.nationality }}</p>
+                        <p><span class="font-medium">Date de naissance :</span> {{ application.birthdate }}</p>
+                        <p><span class="font-medium">Domaines d'activité :</span> {{ application.specialties }}</p>
                         <p><span class="font-medium">Statut :</span> {{ application.status }}</p>
                         <p><span class="font-medium">Étape actuelle :</span> {{ application.current_stage_name }}</p>
                     </div>
@@ -79,7 +79,7 @@
                         >
                             <p class="text-sm font-medium">
                                 {{ comment.author_name }}
-                                <span class="text-gray-500">({{ comment.author }})</span>
+                                <span class="text-gray-500">({{ comment.author_email}})</span>
                             </p>
                             <p class="text-sm mt-1">{{ comment.content }}</p>
                             <p class="text-xs text-gray-400 mt-1">
@@ -149,16 +149,13 @@ import { useAuthStore, useMessage, formatErrors } from "#imports";
 
 const config = useRuntimeConfig();
 const route = useRoute();
-const access = useAuthStore().access;
+const { access } = useAuthStore();
 
 const { successMessage } = useMessage(); 
 
 const loading = ref(true);
 const appclication_id = route.params.id
-const application = reactive({
-    candidate_info: {},
-    comments: []
-});
+const application = reactive({});
 const newComment = ref("");
 const showReject = ref(false);
 const rejectionReason = ref("");
@@ -182,27 +179,21 @@ async function fetchApplication(id) {
 }
 
 async function addComment() {
-    if (!newComment.value.trim()) return;
-    
-    const comment = {
-        id: Date.now(),
-        author_name: "Admin",
-        author: "admin@ecole.com",
-        content: newComment.value,
-        created_at: new Date().toISOString(),
-    }
-    application.comments.unshift(comment);
-    newComment.value = "";
+    if (!newComment.value.trim()) return;    
     
     try {
-        await $fetch(`/applications/${application.id}/comments/`, {
+        const res = await $fetch(`/applications/${application.id}/comments/`, {
             method: "POST",
             baseURL: config.public.API_BASE_URL,
             headers: {
                 Authorization: `Bearer ${access}`,
             },
-            body: { content: comment.content },
+            body: { content: newComment.value },
         })
+        
+        application.comments.unshift(res);
+        newComment.value = "";
+        
     } catch (err) {
         console.error("Erreur lors de l'ajout du commentaire:", err);
     }
@@ -221,7 +212,6 @@ async function approveApplication() {
                 Authorization: `Bearer ${access}`,
             },
         })
-        application.status = "approved";
         successMessage(res.message);
     } catch (err) {
         formatErrors(err);

@@ -19,7 +19,7 @@ const emit = defineEmits(["open"])
         <CardHeader>
             <CardTitle class="flex items-center gap-2">
                 <User class="w-5 h-5" />
-                {{ application.candidate_info.full_name }}
+                {{ application.full_name }}
             </CardTitle>
                 <p class="text-sm"><Badge>{{ application.position_title }}</Badge></p>
         </CardHeader>
@@ -27,17 +27,17 @@ const emit = defineEmits(["open"])
         <CardContent class="space-y-2">
             <div class="flex items-center gap-2 text-sm">
                 <Mail class="w-4 h-4" />
-                <span>{{ application.candidate_info.email }}</span>
+                <span>{{ application.email }}</span>
             </div>
             
             <div class="flex items-center gap-2 text-sm">
                 <Phone class="w-4 h-4" />
-                <span>{{ application.candidate_info.phone }}</span>
+                <span>{{ application.phone }}</span>
             </div>
             
             <div class="flex items-center gap-2 text-sm">
                 <Globe class="w-4 h-4" />
-                <span>{{ application.candidate_info.nationality }}</span>
+                <span>{{ application.nationality }}</span>
             </div>
             
             <div class="flex items-center gap-2 text-sm">

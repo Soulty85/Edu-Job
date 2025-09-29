@@ -21,11 +21,13 @@ export const useAuthStore = defineStore("auth", () => {
         if (access.value) {
             try {
                 const decoded = jwtDecode(access.value);
+                console.log("Token décodé:", decoded);
                 user.value = {
                     full_name: decoded.full_name,
                     email: decoded.email,
                     role: decoded.group,
                 };
+                console.log("Utilisateur chargé:", user.value);
             } catch (err) {
                 console.error("Token invalide ou expiré", err);
                 logout(); 
@@ -98,5 +100,6 @@ export const useAuthStore = defineStore("auth", () => {
         login,
         register,
         logout,
+        loadUserByToken,
     };
 });
