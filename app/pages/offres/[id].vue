@@ -42,7 +42,7 @@
                 
                 <!-- ACTIONS -->
                 <div class="mt-6 flex gap-3">
-                    <Button>
+                    <Button class="w-48 py-4" :loading="loading_apply" :disabled="loading_apply" @click="applyPosition" >
                         Postuler maintenant
                     </Button>
                 </div>
@@ -160,6 +160,7 @@ import { ref } from "vue"
 import { useRoute } from "#app"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { useMessage, useAuthStore } from "#imports"
 import JobDetailSkeleton from "~/components/base/skeleton/JobDetailSkeleton.vue"
 
 useHead({
@@ -171,11 +172,17 @@ definePageMeta({
 
 const route = useRoute();
 const config = useRuntimeConfig();
+
 const loading = ref(true);
+const loading_apply = ref(false);
+
 const job_id = route.params.id;
 const job = ref([]);
 const subjects = ref([]);
 const error = ref("");
+
+const { access } = useAuthStore();
+const { errorMessage, successMessage } = useMessage();
 
 
 onMounted(async () => {
@@ -196,6 +203,29 @@ onMounted(async () => {
     }
 })
 
+async function applyPosition() {
+    try {
+        loading_apply.value = true
+        await $fetch(`/applications/apply/`, {
+            method: "POST",
+            baseURL: config.public.API_BASE_URL,
+            headers: {
+                Authorization: `Bearer ${access}`, 
+                "Content-Type": "application/json" 
+            },
+            body: {
+                position: job_id 
+            },
+        })
+    
+        successMessage("Candidature envoyée avec succès !")
+    } catch (err) {
+        console.error("Erreur API:", err)
+        errorMessage("vous avez deja postulé pour cette offre")
+    } finally {
+        loading_apply.value = false
+    }
+}
 
 function statusVariant(status) {
     switch (status) {
