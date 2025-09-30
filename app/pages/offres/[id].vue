@@ -221,7 +221,7 @@ async function applyPosition() {
         successMessage("Candidature envoyée avec succès !")
     } catch (err) {
         console.error("Erreur API:", err)
-        errorMessage("vous avez deja postulé pour cette offre")
+        errorMessage(access? "Impossible d'itentifier le candidat vous devez etre connecté": "vous avez deja postulé pour cette offre")
     } finally {
         loading_apply.value = false
     }

@@ -9,12 +9,12 @@
             <div v-if="!loading" class="grid md:grid-cols-2 gap-4">
                 <KpiCard
                     title="Total d'offres"
-                    :value="3"
+                    :value="10"
                     icon="lucide:users"
                 />
                 <KpiCard
                     title="Total de candidatures"
-                    :value="5"
+                    :value="20"
                     icon="lucide:bar-chart-2"
                 />
             </div>
