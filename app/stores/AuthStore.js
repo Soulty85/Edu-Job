@@ -26,6 +26,7 @@ export const useAuthStore = defineStore("auth", () => {
                     full_name: decoded.full_name,
                     email: decoded.email,
                     role: decoded.group,
+                    id: decoded.user_id,
                 };
                 console.log("Utilisateur chargé:", user.value);
             } catch (err) {

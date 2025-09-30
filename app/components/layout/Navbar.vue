@@ -16,14 +16,16 @@
             </div>
             
             <div v-if="authStore.isAuthenticated" class="flex flex-row-reverse items-center gap-7">
-                <div class="flex items-center gap-2">
-                    <img
-                    src="https://i.pravatar.cc/40"
-                    alt="avatar"
-                    class="w-12 h-12 rounded-full"
-                    >
-                    <span class="text-sm">Jane Doe</span>
-                </div>
+                <NuxtLink to="/profile" class="hover:underline">
+                    <div class="flex items-center gap-2">
+                        <img
+                        src="https://i.pravatar.cc/40"
+                        alt="avatar"
+                        class="w-12 h-12 rounded-full"
+                        >
+                        <span class="text-sm">Jane Doe</span>
+                    </div>
+                </NuxtLink>
                 
                 <Button @click="authStore.logout()">
                     <Icon name="lucide:log-out" class="w-5 h-5" />
